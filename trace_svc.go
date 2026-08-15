@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/hecc-blot/hecc-blot-core/contract/trace"
-	traceConf "github.com/hecc-blot/hecc-blot-core/entity/config/trace"
+	traceContract "github.com/hecc-blot/hecc-blot-trace/contract"
+	traceConf "github.com/hecc-blot/hecc-blot-trace/config"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -59,7 +59,7 @@ func (s *spanWrapper) Name() string {
 	return s.name
 }
 
-func (t *traceSvc) Start(ctx context.Context, name string, attrs ...interface{}) (context.Context, trace.Span) {
+func (t *traceSvc) Start(ctx context.Context, name string, attrs ...interface{}) (context.Context, traceContract.Span) {
 	var otelAttrs []attribute.KeyValue
 	for i := 0; i < len(attrs); i += 2 {
 		if i+1 < len(attrs) {
@@ -82,7 +82,7 @@ func (t *traceSvc) Start(ctx context.Context, name string, attrs ...interface{})
 	return ctx, &spanWrapper{span: span, name: name}
 }
 
-func (t *traceSvc) FromContext(ctx context.Context) trace.Span {
+func (t *traceSvc) FromContext(ctx context.Context) traceContract.Span {
 	span := otelTrace.SpanFromContext(ctx)
 	return &spanWrapper{span: span, name: span.SpanContext().SpanID().String()}
 }
@@ -107,7 +107,7 @@ func (t *traceSvc) Extract(carrier interface{}) (context.Context, error) {
 	return nil, errors.New("unsupported carrier type")
 }
 
-func NewTraceSvc(config *traceConf.Config) (trace.ITrace, func(), error) {
+func NewTraceSvc(config *traceConf.Config) (traceContract.ITrace, func(), error) {
 	exp, err := otlptracehttp.New(context.Background(),
 		otlptracehttp.WithEndpoint(config.Endpoint),
 		otlptracehttp.WithInsecure())
