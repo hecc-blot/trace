@@ -3,7 +3,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/hecc-blot/hecc-blot-trace/contract"
+	"github.com/hecc-blot/trace/contract"
 )
 
 // MockTrace 是 ITrace 接口的 mock 实现，供单测复用。

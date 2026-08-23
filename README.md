@@ -5,7 +5,7 @@
 ## 安装
 
 ```bash
-go get github.com/hecc-blot/hecc-blot-trace
+go get github.com/hecc-blot/trace
 ```
 
 ## 说明

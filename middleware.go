@@ -3,9 +3,9 @@ package trace
 import (
 	"context"
 
-	iCoreApi "github.com/hecc-blot/hecc-blot-core/contract/api"
-	traceEnum "github.com/hecc-blot/hecc-blot-core/enum/trace"
-	contract "github.com/hecc-blot/hecc-blot-trace/contract"
+	iCoreApi "github.com/hecc-blot/core/contract/api"
+	traceEnum "github.com/hecc-blot/core/enum/trace"
+	contract "github.com/hecc-blot/trace/contract"
 
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel/propagation"
