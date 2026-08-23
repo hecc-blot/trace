@@ -1,10 +1,10 @@
-package trace
+package service
 
 import (
 	"context"
 
-	iCoreApi "github.com/hecc-blot/core/contract/api"
-	traceEnum "github.com/hecc-blot/core/enum/trace"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
+	traceEnum "github.com/hecc-blot/framework/enum/trace"
 	contract "github.com/hecc-blot/trace/contract"
 
 	"github.com/gin-gonic/gin"

@@ -1,11 +1,11 @@
-package trace
+package service
 
 import (
 	"context"
 	"errors"
 
-	traceContract "github.com/hecc-blot/trace/contract"
 	traceConf "github.com/hecc-blot/trace/config"
+	traceContract "github.com/hecc-blot/trace/contract"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"

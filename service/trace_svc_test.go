@@ -1,12 +1,12 @@
-package trace
+package service
 
 import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestTraceStart(t *testing.T) {

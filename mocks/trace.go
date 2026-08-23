@@ -3,7 +3,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/hecc-blot/trace/contract"
+	trace "github.com/hecc-blot/trace/contract"
 )
 
 // MockTrace 是 ITrace 接口的 mock 实现，供单测复用。
@@ -30,7 +30,7 @@ type MockSpan struct {
 	name string
 }
 
-func (m *MockSpan) End()                                 {}
+func (m *MockSpan) End()                                       {}
 func (m *MockSpan) SetAttribute(key string, value interface{}) {}
-func (m *MockSpan) RecordError(err error)                {}
-func (m *MockSpan) Name() string                         { return m.name }
+func (m *MockSpan) RecordError(err error)                      {}
+func (m *MockSpan) Name() string                               { return m.name }
