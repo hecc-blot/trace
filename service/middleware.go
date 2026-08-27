@@ -4,7 +4,7 @@ import (
 	"context"
 
 	iCoreApi "github.com/hecc-blot/framework/contract/api"
-	traceEnum "github.com/hecc-blot/framework/enum/trace"
+	traceEnum "github.com/hecc-blot/core/enum/trace"
 	contract "github.com/hecc-blot/trace/contract"
 
 	"github.com/gin-gonic/gin"
