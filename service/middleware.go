@@ -3,11 +3,10 @@ package service
 import (
 	"context"
 
-	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	traceEnum "github.com/hecc-blot/core/enum/trace"
+	iCoreApi "github.com/hecc-blot/framework/contract/api"
 	contract "github.com/hecc-blot/trace/contract"
 
-	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel/propagation"
 	otelTrace "go.opentelemetry.io/otel/trace"
 )
@@ -22,17 +21,17 @@ func NewHttpMiddleware(traceSvc contract.ITrace) iCoreApi.IMiddleware {
 	return &HttpTraceMiddleware{TraceSvc: traceSvc}
 }
 
-func (h *HttpTraceMiddleware) Middleware() any {
-	return func(c *gin.Context) {
-		span := startSpan(c, h.TraceSvc, "http.request",
-			"http.method", c.Request.Method,
-			"http.url", c.Request.URL.Path,
-			"net.peer.ip", c.ClientIP(),
+func (h *HttpTraceMiddleware) Middleware() iCoreApi.MiddlewareFunc {
+	return func(ctx iCoreApi.IContext) {
+		span := startSpan(ctx, h.TraceSvc, "http.request",
+			"http.method", ctx.Method(),
+			"http.url", ctx.Path(),
+			"net.peer.ip", ctx.ClientIP(),
 		)
 		defer span.End()
 
-		c.Next()
-		span.SetAttribute("http.status_code", c.Writer.Status())
+		ctx.Next()
+		span.SetAttribute("http.status_code", ctx.Status())
 	}
 }
 
@@ -46,37 +45,37 @@ func NewSseMiddleware(traceSvc contract.ITrace) iCoreApi.IMiddleware {
 	return &SseTraceMiddleware{TraceSvc: traceSvc}
 }
 
-func (s *SseTraceMiddleware) Middleware() any {
-	return func(c *gin.Context) {
-		span := startSpan(c, s.TraceSvc, "sse.connection", "sse.path", c.FullPath())
+func (s *SseTraceMiddleware) Middleware() iCoreApi.MiddlewareFunc {
+	return func(ctx iCoreApi.IContext) {
+		span := startSpan(ctx, s.TraceSvc, "sse.connection", "sse.path", ctx.FullPath())
 		defer span.End()
 
-		c.Next()
-		span.SetAttribute("sse.status_code", c.Writer.Status())
+		ctx.Next()
+		span.SetAttribute("sse.status_code", ctx.Status())
 	}
 }
 
 // startSpan 提取上游 trace、创建 span、注入 X-Trace-Id/traceparent 响应头，
 // 并将 trace 上下文写回 request.Context，返回 span 供调用方 defer End。
-func startSpan(c *gin.Context, traceSvc contract.ITrace, name string, attrs ...interface{}) contract.Span {
+func startSpan(ctx iCoreApi.IContext, traceSvc contract.ITrace, name string, attrs ...interface{}) contract.Span {
 	carrier := make(propagation.HeaderCarrier)
-	if traceparent := c.GetHeader("traceparent"); traceparent != "" {
+	if traceparent := ctx.GetHeader("traceparent"); traceparent != "" {
 		carrier.Set("traceparent", traceparent)
 	}
 
-	ctx, _ := traceSvc.Extract(carrier)
-	ctx, span := traceSvc.Start(ctx, name, attrs...)
+	c, _ := traceSvc.Extract(carrier)
+	c, span := traceSvc.Start(c, name, attrs...)
 
 	traceID := ""
-	if spanCtx := otelTrace.SpanFromContext(ctx).SpanContext(); spanCtx.HasTraceID() {
+	if spanCtx := otelTrace.SpanFromContext(c).SpanContext(); spanCtx.HasTraceID() {
 		traceID = spanCtx.TraceID().String()
 		spanID := spanCtx.SpanID().String()
 		span.SetAttribute("trace.id", traceID)
-		c.Header("X-Trace-Id", traceID)
-		c.Header("traceparent", "00-"+traceID+"-"+spanID+"-01")
+		ctx.Header("X-Trace-Id", traceID)
+		ctx.Header("traceparent", "00-"+traceID+"-"+spanID+"-01")
 	}
 
-	ctx = context.WithValue(ctx, traceEnum.TraceIdKey, traceID)
-	c.Request = c.Request.WithContext(ctx)
+	c = context.WithValue(c, traceEnum.TraceIdKey, traceID)
+	ctx.SetRequestContext(c)
 	return span
 }

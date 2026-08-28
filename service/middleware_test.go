@@ -10,6 +10,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	traceSDK "go.opentelemetry.io/otel/sdk/trace"
+
+	httpSvc "github.com/hecc-blot/framework/service/http"
 )
 
 func setupTraceSvc() *traceSvc {
@@ -26,8 +28,8 @@ func TestHttpTraceMiddleware(t *testing.T) {
 	svc := setupTraceSvc()
 
 	engine := gin.New()
-	httpMw := NewHttpMiddleware(svc).Middleware().(func(*gin.Context))
-	engine.Use(gin.HandlerFunc(httpMw))
+	httpMw := httpSvc.AdaptMiddleware(NewHttpMiddleware(svc).Middleware())
+	engine.Use(httpMw)
 	engine.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
@@ -47,8 +49,8 @@ func TestSseTraceMiddleware(t *testing.T) {
 	svc := setupTraceSvc()
 
 	engine := gin.New()
-	sseMw := NewSseMiddleware(svc).Middleware().(func(*gin.Context))
-	engine.Use(gin.HandlerFunc(sseMw))
+	sseMw := httpSvc.AdaptMiddleware(NewSseMiddleware(svc).Middleware())
+	engine.Use(sseMw)
 	engine.GET("/events/time", func(c *gin.Context) {
 		c.String(http.StatusOK, "data: ok\n\n")
 	})

@@ -96,7 +96,7 @@ func (y YourApi) Call(ctx *gin.Context) (interface{}, error) {
 
 ```go
 apiHandle := httpSvc.NewApiSvc(&config.Server, responseSvc, container)
-sseHandle := sse.NewSseSvc(apiHandle.Engine(), container)
+sseHandle := sse.NewSseSvc(apiHandle, container)
 
 apiHandle.Middleware(trace.NewHttpMiddleware(traceSvc))
 sseHandle.Middleware(trace.NewSseMiddleware(traceSvc))
